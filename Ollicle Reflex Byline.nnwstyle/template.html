@@ -1,0 +1,52 @@
+<div id="ui">
+	<div class="button"></div>
+	<div class="panel">
+		<p>Source unknown</p>
+		<dl id="skins">
+			<dt>Skin</dt>
+			<dd class="white">white</dd>
+			<dd class="black">black</dd>
+		</dl>
+		<dl id="layout">
+			<dt>Layout</dt>
+			<dd class="one">one</dd>
+			<dd class="two">two</dd>
+		</dl>
+	</div>
+</div>
+<div class="newsItemContainer">
+	<div class="newsItemTitle">
+		[[newsitem_title]]
+	</div>
+	<div class="newsItemDescription" id="lineflex">
+		<h1 class='title'>
+			[[newsitem_dateline]]
+			[[newsitem_title]]
+		</h1>
+		[[newsitem_description]]
+		<p class="newsItemExtraLinks">[[newsitem_extralinks]]</p>
+	</div>
+	<div class="newsItemDateLine"><img id='headshot' src='img/prefititem.png' width='100px' style='display:none'/>[[newsitem_dateline]]</div>
+</div>
+<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAf4I970UYhuxTpxMZ2QswtBQNMLGBVIYprT8eFscR0SR8dmWZYBSyPzry2EWmglwJs1J0U8-cBGTsNQ"></script>
+<script type="text/javascript">
+	var styletext = document.getElementsByTagName("style").item(1).firstChild.nodeValue;
+	var stylepath = styletext.replace(/@import "|stylesheet.css";/g,"");
+	var scriptinsert = "";
+	function loadJavaScript(files){
+		for (var i=0;i<files.length;i++){
+			scriptinsert += '<script type="text/javascript" src="' + stylepath + files[i] + '"><\/script>';
+		}
+		document.write(scriptinsert);
+	}
+	loadJavaScript([
+	"jquery.js",
+	"jquery.jqem-uncompressed.js",
+	"jquery.autolineheight.js",
+	"jquery.imagefit.js",
+	"md5.js",
+	"jquery.timeago.js",
+	"jquery.cookie.js",
+	"jquery.headshot.js",
+	"javascript.js"]);
+</script>

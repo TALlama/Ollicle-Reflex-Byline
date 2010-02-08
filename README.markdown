@@ -8,3 +8,11 @@ Ollicle Reflex Byline owes a great deal (even it's name!) to the fantastic [Olli
 		1. author if available
 		2. blog title if not
 		3. item url as last resort
+		
+## Download
+
+The latest version [is available here](http://cloud.github.com/downloads/TALlama/Ollicle-Reflex-Byline/ORByline.zip).
+
+the download is made by running:
+
+    zip -r ORByline Ollicle\ Reflex\ Byline.nnwstyle/

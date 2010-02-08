@@ -351,6 +351,40 @@ code {
 	opacity: .7;
 }
 
+.headshot-picker {
+	position: relative;
+	width: 500px;
+	right: 426px;
+	background: white;
+	padding: 1em;
+	border: 1px solid black;
+}
+
+.headshot-picker input[type='text'] {
+	width: 80%;
+}
+
+.headshot-picker ul {
+	height: 200px;
+	overflow-y: scroll;
+}
+
+.headshot-picker li {
+	list-style: none;
+	display: inline;
+}
+
+.headshot-picker img {
+	width: 100px;
+	vertical-align: top;
+	cursor: hand;
+	border: .5em solid white;
+}
+
+.headshot-picker li.selected img {
+	border: .5em solid #ddf;
+}
+
 /* Feed meta */
 /* Contains sourcelink, date, author, commentslink  */
 .newsItemDateLine {

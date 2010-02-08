@@ -12,8 +12,14 @@
  * Copyright (c) 2009-2010, Seth A. Roby (tallama plussign headshot at gmail dot com)
  */
 (function() {
+	function id(name, idSuffix) {
+		return arguments.length == 1
+			? name.replace(/[^a-zA-Z0-9]/g, '')
+			: $('#' + id(name) + '-' + idSuffix);
+	}
+	
 	function cookieForName(name) {
-		return 'headshot-for-' + name.replace('[^a-zA-Z0-9]', '');
+		return 'headshot-for-' + id(name);
 	}
 	
 	//set the src url to that given, saving it under author name
@@ -23,8 +29,13 @@
 		if (!srcUrl) return null;
 		if (!name) name = getByline();
 		
+		var idPrefix = id(name);
+		
 		console.log("New headshot src url: " + srcUrl);
 		$.cookie(cookieForName(name), srcUrl, {expires: userPref.cookietime});
+		id(name, 'headshot-url').attr('value', srcUrl);
+		id(name, 'headshots li.selected').removeClass('selected');
+		id(name, 'headshots li img[src='+srcUrl+']').closest('li').addClass('selected');
 		this.attr("src", srcUrl);
 		return srcUrl;
 	};
@@ -35,46 +46,66 @@
 		
 		var jq = this;
 		var jqEl = jq.get(0);
-
+		var idPrefix = id(name);
+		
+		//find the current srcUrl from the cookie
+		var srcUrl = $.cookie(cookieForName(name));
+		srcUrl = jq.setHeadshotSrcUrl(srcUrl, name);
+		
+		//add the picker ui
 		jQuery.data(jqEl, 'resultIndex', 0);
 		jq.css({cursor: 'hand'});
 		jq.attr("title", "Click to change headshot");
 		jq.load(function() {
-			$(this).show()
-		});	
-		jq.click(function() {
-			var resultIndex = jQuery.data(jqEl, 'resultIndex') + 1;
-			var imgSearch = jQuery.data(jqEl, 'imgSearch');
-			
-			if (!imgSearch.results || !imgSearch.cursor) {
-				imgSearch.execute(name);
-			} else if (resultIndex >= imgSearch.results.length) {
-				imgSearch.gotoPage(imgSearch.cursor.currentPageIndex + 1);
-			} else {
-				jQuery.data(jqEl, 'resultIndex', resultIndex);
-				jq.setHeadshotSrcUrl(imgSearch.results[resultIndex].unescapedUrl);
-			}
+			$(this).show();
 		});
-		
-		var srcUrl = $.cookie(cookieForName(name));
-		srcUrl = jq.setHeadshotSrcUrl(srcUrl, name);
+		jq.click(function() {
+			var imgSearch = jQuery.data(jqEl, 'imgSearch');
+			if (!imgSearch.results || imgSearch.results.length == 0) {
+				//using the cookie image; load the results
+				imgSearch.execute(name);
+			}
+			
+			//and show the picker
+			id(name, 'headshot-picker').slideToggle();
+		});
+		$(jqEl).after("<div id='" + idPrefix + "-headshot-picker' class='headshot-picker' style='display:none'>" +
+			"	<p class='help'>Click a headshot</p>" +
+			"	<ul id='" + idPrefix + "-headshots'/>" +
+			"	<p id='" + idPrefix + "-loading'>Loading...</p>" +
+			"	<hr/>" +
+			"	<p class='help'>Or type a url</p>" +
+			"	<input id='" + idPrefix + "-headshot-url' type='text' />" +
+			"	<input id='" + idPrefix + "-set-headshot-url' type='button' value='Set' />" +
+			"</div>");
+		id(name, 'headshot-url').attr('value', srcUrl);	
+		id(name, 'set-headshot-url').click(function() {
+			jq.setHeadshotSrcUrl(id(name, 'headshot-url').attr('value'), name);
+			id(name, 'headshot-picker').slideUp();
+		});
+		id(name, 'headshots img').live('click', function() {
+			srcUrl = $(this).attr('src');
+			jq.setHeadshotSrcUrl(srcUrl, name);
+			id(name, 'headshot-picker').slideUp();
+		});
 		
 		var loadImages = function() {
 			var imgSearch = new google.search.ImageSearch();
 			jQuery.data(jqEl, 'imgSearch', imgSearch);
 			imgSearch.setSearchCompleteCallback(window, function() {
-				jQuery.data(jqEl, 'resultIndex', 0);
+				id(name, 'loading').remove();
 				
 				if (imgSearch.results.length > 0) {
-					var newSrcUrl = imgSearch.results[0].unescapedUrl;
-					
-					// if the first hit is what we've got, skip it
-					if (newSrcUrl == jq.attr("src")
-					&& imgSearch.results.length > 1) {
-						newSrcUrl = imgSearch.results[1].unescapedUrl;
+					if (!srcUrl && imgSearch.cursor.currentPageIndex == 0) {
+						jq.setHeadshotSrcUrl(imgSearch.results[0].unescapedUrl, name);
 					}
 					
-					jq.setHeadshotSrcUrl(newSrcUrl, name);
+					for (var ix = 0; ix < imgSearch.results.length; ix++) {
+						var su = imgSearch.results[ix].unescapedUrl;
+						var selected = (su == srcUrl) ? 'class="selected"' : '';
+						id(name, 'headshots').append('<li ' + selected + '><img src="' + su + '" /></li>');
+						imgSearch.gotoPage(imgSearch.cursor.currentPageIndex + 1);
+					}
 				} //else found nothing; don't show
 			});
 			//only load faces

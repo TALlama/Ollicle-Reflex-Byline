@@ -48,12 +48,26 @@
 		var jqEl = jq.get(0);
 		var idPrefix = id(name);
 		
-		//find the current srcUrl from the cookie
-		var srcUrl = $.cookie(cookieForName(name));
-		srcUrl = jq.setHeadshotSrcUrl(srcUrl, name);
+		//define helper methods
+		var setSearchTerm = function() {
+			//clear old images
+			id(name, 'headshots').empty();
+			
+			//fetch new ones
+			var newName = id(name, 'search-term').attr('value');
+			jQuery.data(jqEl, 'imgSearch').execute(newName);
+		};
+		var setSrcUrlAndClose = function() {
+			jq.setHeadshotSrcUrl(id(name, 'headshot-url').attr('value'), name);
+			id(name, 'headshot-picker').slideUp();
+		};
+		var clearHeadshot = function() {
+			var src = window.stylepath + "/img/no-headshot.png";
+			id(name, 'headshot-url').attr('value', src);
+			setSrcUrlAndClose();
+		};
 		
 		//add the picker ui
-		jQuery.data(jqEl, 'resultIndex', 0);
 		jq.css({cursor: 'hand'});
 		jq.attr("title", "Click to change headshot");
 		jq.load(function() {
@@ -71,23 +85,47 @@
 		});
 		$(jqEl).after("<div id='" + idPrefix + "-headshot-picker' class='headshot-picker' style='display:none'>" +
 			"	<p class='help'>Click a headshot</p>" +
+			"	<input id='" + idPrefix + "-search-term' type='text' />" +
+			"	<input id='" + idPrefix + "-search' type='button' value='Search' />" +
 			"	<ul id='" + idPrefix + "-headshots'/>" +
 			"	<p id='" + idPrefix + "-loading'>Loading...</p>" +
 			"	<hr/>" +
 			"	<p class='help'>Or type a url</p>" +
 			"	<input id='" + idPrefix + "-headshot-url' type='text' />" +
 			"	<input id='" + idPrefix + "-set-headshot-url' type='button' value='Set' />" +
+			"	<hr/>" +
+			"	<p class='help'>Or <a href='#' id='" + idPrefix + "-clear'>clear the headshot</a></p>" +
 			"</div>");
+		id(name, 'search-term').attr('value', name);
+		id(name, 'search-term').keypress(function(event) {
+			if (event.keyCode == '10' || event.keyCode == '13') {
+				event.preventDefault();
+				setSearchTerm();
+			}
+		});
+		id(name, 'search').click(setSearchTerm);
 		id(name, 'headshot-url').attr('value', srcUrl);	
-		id(name, 'set-headshot-url').click(function() {
-			jq.setHeadshotSrcUrl(id(name, 'headshot-url').attr('value'), name);
-			id(name, 'headshot-picker').slideUp();
+		id(name, 'set-headshot-url').click(setSrcUrlAndClose);
+		id(name, 'headshot-url').keypress(function(event) {
+			if (event.keyCode == '10' || event.keyCode == '13') {
+				event.preventDefault();
+				setSrcUrlAndClose();
+			}
 		});
 		id(name, 'headshots img').live('click', function() {
 			srcUrl = $(this).attr('src');
 			jq.setHeadshotSrcUrl(srcUrl, name);
 			id(name, 'headshot-picker').slideUp();
 		});
+		id(name, 'clear').click(function(event) {
+			event.preventDefault();
+			clearHeadshot();
+		})
+		
+		//find the current srcUrl from the cookie
+		var srcUrl = $.cookie(cookieForName(name));
+		if (srcUrl) jq.setHeadshotSrcUrl(srcUrl, name);
+		else clearHeadshot();
 		
 		var loadImages = function() {
 			var imgSearch = new google.search.ImageSearch();
@@ -104,7 +142,9 @@
 						var su = imgSearch.results[ix].unescapedUrl;
 						var selected = (su == srcUrl) ? 'class="selected"' : '';
 						id(name, 'headshots').append('<li ' + selected + '><img src="' + su + '" /></li>');
-						imgSearch.gotoPage(imgSearch.cursor.currentPageIndex + 1);
+						if (imgSearch.cursor) {
+							imgSearch.gotoPage(imgSearch.cursor.currentPageIndex + 1);
+						}
 					}
 				} //else found nothing; don't show
 			});

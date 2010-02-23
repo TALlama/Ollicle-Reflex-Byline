@@ -26,12 +26,12 @@
 		[[newsitem_description]]
 		<p class="newsItemExtraLinks">[[newsitem_extralinks]]</p>
 	</div>
-	<div class="newsItemDateLine"><img id='headshot' src='img/prefititem.png' width='100px' style='display:none'/>[[newsitem_dateline]]</div>
+	<div class="newsItemDateLine"><img id='headshot' src='img/no-headshot.png' width='100px' style='display:none'/>[[newsitem_dateline]]</div>
 </div>
 <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAf4I970UYhuxTpxMZ2QswtBQNMLGBVIYprT8eFscR0SR8dmWZYBSyPzry2EWmglwJs1J0U8-cBGTsNQ"></script>
 <script type="text/javascript">
 	var styletext = document.getElementsByTagName("style").item(1).firstChild.nodeValue;
-	var stylepath = styletext.replace(/@import "|stylesheet.css";/g,"");
+	var stylepath = window.stylepath = styletext.replace(/@import "|stylesheet.css";/g,"");
 	var scriptinsert = "";
 	function loadJavaScript(files){
 		for (var i=0;i<files.length;i++){

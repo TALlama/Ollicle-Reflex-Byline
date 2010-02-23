@@ -354,10 +354,14 @@ code {
 .headshot-picker {
 	position: relative;
 	width: 500px;
-	right: 426px;
+	right: 420px;
 	background: white;
 	padding: 1em;
 	border: 1px solid black;
+}
+
+#widescreenViewBody .headshot-picker {
+	right: 0px;
 }
 
 .headshot-picker input[type='text'] {
@@ -367,11 +371,12 @@ code {
 .headshot-picker ul {
 	height: 200px;
 	overflow-y: scroll;
+	padding: 0;
 }
 
 .headshot-picker li {
 	list-style: none;
-	display: inline;
+	display: inline-block;
 }
 
 .headshot-picker img {
